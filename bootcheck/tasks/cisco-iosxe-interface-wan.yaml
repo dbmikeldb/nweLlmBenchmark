@@ -1,0 +1,49 @@
+id: cisco-iosxe-interface-wan
+vendor: cisco
+os_train: iosxe
+tier: bootcheck
+scoring: binary
+title: WAN interface, admin up, best-practice hardening
+
+llm_input:
+  prompt: |
+    Configure the GigabitEthernet0/1 interface on this Cisco IOS-XE device to be
+    administratively up, with an IP address of 192.168.0.1/24.
+
+    Apply Cisco best-practice interface hardening.
+
+    Set the interface description to: [WAN]-[CCT12345]-[100/1000]
+
+    Return the full CLI needed to enter configuration mode, apply the change,
+    exit back to privileged EXEC, and save the configuration to memory.
+  context:
+    interface: GigabitEthernet0/1
+    ip_address: 192.168.0.1
+    prefix_length: 24
+    description: "[WAN]-[CCT12345]-[100/1000]"
+
+grading:
+  expected_config: |
+    configure terminal
+    !
+    interface GigabitEthernet0/1
+     description [WAN]-[CCT12345]-[100/1000]
+     ip address 192.168.0.1 255.255.255.0
+     no ip redirects
+     no ip unreachables
+     no ip proxy-arp
+     no shutdown
+    !
+    exit
+    end
+    write memory
+  pass_criteria:
+    interface_admin_up: true
+    ip_address: "192.168.0.1 255.255.255.0"
+    description_exact: "[WAN]-[CCT12345]-[100/1000]"
+    hardening_lines:
+      - "no ip redirects"
+      - "no ip unreachables"
+      - "no ip proxy-arp"
+    config_saved: true
+    isolation: true
