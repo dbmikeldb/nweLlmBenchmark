@@ -37,12 +37,14 @@ grading:
     end
     write memory
   pass_criteria:
-    interface_admin_up: true
-    ip_address: "192.168.0.1 255.255.255.0"
-    description_exact: "[WAN]-[CCT12345]-[100/1000]"
-    hardening_lines:
+    required_lines:
+      - "no shutdown"
+      - "ip address 192.168.0.1 255.255.255.0"
       - "no ip redirects"
       - "no ip unreachables"
       - "no ip proxy-arp"
+    required_substrings:
+      - "[WAN]-[CCT12345]-[100/1000]"
     config_saved: true
-    isolation: true
+    isolation:
+      interface: GigabitEthernet0/1
