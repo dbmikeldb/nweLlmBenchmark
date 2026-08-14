@@ -30,7 +30,10 @@ def _line_present(response_text: str, target: str) -> bool:
     return bool(re.search(pattern, response_text, re.MULTILINE | re.IGNORECASE))
 
 
-def _check_isolation(response_text: str, expected_interface: str) -> bool:
+def _check_isolation(response_text: str, isolation: dict) -> bool:
+    expected_interface = isolation.get("interface")
+    allowed_prefixes = [p.lower() for p in isolation.get("allowed_top_level_prefixes", [])]
+
     in_submode = False
     for raw_line in response_text.splitlines():
         line = raw_line.strip()
@@ -38,6 +41,8 @@ def _check_isolation(response_text: str, expected_interface: str) -> bool:
             continue
 
         if line.lower().startswith("interface "):
+            if expected_interface is None:
+                return False
             submode_interface = line.split(None, 1)[1].strip()
             if submode_interface.lower() != expected_interface.lower():
                 return False
@@ -51,28 +56,40 @@ def _check_isolation(response_text: str, expected_interface: str) -> bool:
         if in_submode:
             continue
 
-        if line.lower() not in ALLOWED_TOP_LEVEL_LINES:
-            return False
+        if line.lower() in ALLOWED_TOP_LEVEL_LINES:
+            continue
+
+        if any(line.lower().startswith(prefix) for prefix in allowed_prefixes):
+            continue
+
+        return False
 
     return True
 
 
 def grade(response_text: str, task: dict) -> dict:
     criteria = task["grading"]["pass_criteria"]
-    interface = task["llm_input"]["context"]["interface"]
+    body = _strip_code_fence(response_text)
 
-    results = {
-        "interface_admin_up": _line_present(response_text, "no shutdown"),
-        "ip_address": criteria["ip_address"].lower() in response_text.lower(),
-        "description_exact": criteria["description_exact"] in response_text,
-        "hardening_lines": all(
-            _line_present(response_text, line) for line in criteria["hardening_lines"]
-        ),
-        "config_saved": any(
+    results = {}
+
+    if "required_lines" in criteria:
+        results["required_lines"] = all(
+            _line_present(response_text, line) for line in criteria["required_lines"]
+        )
+
+    if "required_substrings" in criteria:
+        results["required_substrings"] = all(
+            substring in response_text for substring in criteria["required_substrings"]
+        )
+
+    if "config_saved" in criteria:
+        results["config_saved"] = any(
             _line_present(response_text, variant) for variant in SAVE_COMMAND_VARIANTS
-        ),
-        "isolation": _check_isolation(_strip_code_fence(response_text), interface),
-    }
+        )
 
-    results["pass"] = all(results.values())
+    if "isolation" in criteria:
+        results["isolation"] = _check_isolation(body, criteria["isolation"])
+
+    results["pass"] = all(results.values()) if results else False
     return results
