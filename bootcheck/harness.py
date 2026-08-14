@@ -9,7 +9,7 @@ import yaml
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from bootcheck.grading import grade
-from requesty_client import RequestyClient
+from requesty_client import RequestyClient, list_free_models
 
 RESULTS_DIR = Path(__file__).resolve().parent.parent / "results" / "runs"
 
@@ -18,16 +18,25 @@ def load_task(path: Path) -> dict:
     return yaml.safe_load(path.read_text())
 
 
-def run(task_path: Path, model: str) -> None:
-    task = load_task(task_path)
+def call_model(client: RequestyClient, task: dict, model: str) -> dict:
     prompt = task["llm_input"]["prompt"]
 
-    client = RequestyClient()
-    result = client.chat(model=model, messages=[{"role": "user", "content": prompt}])
+    try:
+        result = client.chat(model=model, messages=[{"role": "user", "content": prompt}])
+    except Exception as exc:
+        return {
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "task_id": task["id"],
+            "vendor": task["vendor"],
+            "os_train": task["os_train"],
+            "tier": task["tier"],
+            "model": model,
+            "error": str(exc),
+        }
 
     grading = grade(result.content, task)
 
-    record = {
+    return {
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "task_id": task["id"],
         "vendor": task["vendor"],
@@ -42,30 +51,58 @@ def run(task_path: Path, model: str) -> None:
         "completion_tokens": result.completion_tokens,
     }
 
+
+def run(task_path: Path, models: list[str]) -> None:
+    task = load_task(task_path)
+    client = RequestyClient()
+
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
     run_file = RESULTS_DIR / f"{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}.jsonl"
-    with run_file.open("a") as f:
-        f.write(json.dumps(record) + "\n")
 
-    status = "PASS" if grading["pass"] else "FAIL"
-    print(f"[{status}] {task['id']} | {model}")
-    for key, value in grading.items():
-        if key == "pass":
+    records = []
+    for model in models:
+        record = call_model(client, task, model)
+        records.append(record)
+
+        with run_file.open("a") as f:
+            f.write(json.dumps(record) + "\n")
+
+        if "error" in record:
+            print(f"[ERROR] {model}: {record['error']}")
             continue
-        print(f"  {key}: {value}")
-    print(f"Cost: ${result.cost_usd}  Latency: {result.latency_ms:.0f} ms")
+
+        status = "PASS" if record["grading"]["pass"] else "FAIL"
+        print(f"[{status}] {model}  cost=${record['cost_usd']}  latency={record['latency_ms']:.0f}ms")
+
+    if len(models) == 1 and "response" in records[0]:
+        print("\n--- response ---")
+        print(records[0]["response"])
+        return
+
+    passed = sum(1 for r in records if r.get("grading", {}).get("pass"))
+    errored = sum(1 for r in records if "error" in r)
+    total_cost = sum(r.get("cost_usd", 0.0) for r in records)
+    print(f"\n{passed}/{len(models)} passed, {errored} errored, total cost ${total_cost:.4f}")
     print(f"Log: {run_file}")
-    print("\n--- response ---")
-    print(result.content)
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Run a single bootcheck task against a single model.")
+    parser = argparse.ArgumentParser(description="Run a bootcheck task against one or all free-tier models.")
     parser.add_argument("--task", required=True, type=Path, help="Path to task YAML fixture")
-    parser.add_argument("--model", required=True, help="Requesty model id, e.g. google/gemma-4-31b-it")
+    parser.add_argument(
+        "--model",
+        required=True,
+        help="Requesty model id, e.g. google/gemma-4-31b-it, or 'all_free' to sweep every free-tier model",
+    )
     args = parser.parse_args()
 
-    run(args.task, args.model)
+    if args.model == "all_free":
+        models = [m["id"] for m in list_free_models()]
+        print(f"Sweeping {len(models)} free models...")
+    else:
+        models = [args.model]
+
+    run(args.task, models)
 
 
 if __name__ == "__main__":
