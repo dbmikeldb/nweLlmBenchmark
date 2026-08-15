@@ -4,12 +4,13 @@ function passRateClass(rate) {
   return "rate-low";
 }
 
-async function loadLeaderboard() {
+async function loadLeaderboard(date) {
   const body = document.getElementById("leaderboard-body");
 
   let rows;
   try {
-    const res = await fetch("/api/leaderboard");
+    const url = date ? `/api/leaderboard?date=${date}` : "/api/leaderboard";
+    const res = await fetch(url);
     rows = await res.json();
   } catch (err) {
     body.innerHTML = `<tr><td colspan="5">Failed to load leaderboard: ${err}</td></tr>`;
@@ -32,4 +33,26 @@ async function loadLeaderboard() {
   `).join("");
 }
 
+async function loadDates() {
+  const select = document.getElementById("date-filter");
+
+  let dates;
+  try {
+    const res = await fetch("/api/dates");
+    dates = await res.json();
+  } catch (err) {
+    return;
+  }
+
+  for (const date of dates) {
+    const option = document.createElement("option");
+    option.value = date;
+    option.textContent = date;
+    select.appendChild(option);
+  }
+
+  select.addEventListener("change", () => loadLeaderboard(select.value));
+}
+
+loadDates();
 loadLeaderboard();

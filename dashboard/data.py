@@ -22,7 +22,7 @@ def load_tasks() -> dict[str, dict]:
     return tasks
 
 
-def load_runs() -> list[dict]:
+def load_runs(date: str | None = None) -> list[dict]:
     runs = []
     for path in glob.glob(str(RUNS_DIR / "**" / "*.jsonl"), recursive=True):
         with open(path) as f:
@@ -33,13 +33,19 @@ def load_runs() -> list[dict]:
                 record = json.loads(line)
                 if "error" in record:
                     continue
+                if date is not None and record["timestamp"][:10] != date:
+                    continue
                 runs.append(record)
     return runs
 
 
-def build_leaderboard() -> list[dict]:
+def list_available_dates() -> list[str]:
+    return sorted({run["timestamp"][:10] for run in load_runs()})
+
+
+def build_leaderboard(date: str | None = None) -> list[dict]:
     tasks = load_tasks()
-    runs = load_runs()
+    runs = load_runs(date=date)
 
     groups: dict[tuple, dict] = {}
     for run in runs:

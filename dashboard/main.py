@@ -3,7 +3,7 @@ from pathlib import Path
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
-from dashboard.data import build_leaderboard
+from dashboard.data import build_leaderboard, list_available_dates
 
 STATIC_DIR = Path(__file__).resolve().parent / "static"
 
@@ -11,8 +11,13 @@ app = FastAPI(title="LLM Network Benchmark Dashboard")
 
 
 @app.get("/api/leaderboard")
-def leaderboard() -> list[dict]:
-    return build_leaderboard()
+def leaderboard(date: str | None = None) -> list[dict]:
+    return build_leaderboard(date=date)
+
+
+@app.get("/api/dates")
+def dates() -> list[str]:
+    return list_available_dates()
 
 
 app.mount("/", StaticFiles(directory=STATIC_DIR, html=True), name="static")

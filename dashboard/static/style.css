@@ -33,6 +33,26 @@ h1 {
   color: var(--muted);
 }
 
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.controls label {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.controls select {
+  background: var(--row-alt);
+  color: var(--fg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.3rem 0.5rem;
+}
+
 table {
   width: 100%;
   max-width: 900px;
