@@ -3,19 +3,14 @@ import re
 ALLOWED_TOP_LEVEL_LINES = {
     "enable",
     "configure terminal",
-    "conf t",
     "exit",
     "end",
     "write memory",
-    "wr mem",
-    "wr",
     "copy running-config startup-config",
 }
 
 SAVE_COMMAND_VARIANTS = {
     "write memory",
-    "wr mem",
-    "wr",
     "copy running-config startup-config",
 }
 
