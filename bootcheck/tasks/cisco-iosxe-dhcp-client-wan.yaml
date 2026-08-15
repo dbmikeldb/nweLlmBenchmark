@@ -15,6 +15,8 @@ llm_input:
 
     Enter configuration mode, define the configuration, exit to privileged EXEC,
     and save the configuration to memory.
+
+    TLDR output, commands only, no Markdown or code fences.
   context:
     interface: GigabitEthernet0/1
     description: "[WAN]-[CCT12345]-[100/1000]"

@@ -12,6 +12,8 @@ llm_input:
 
     Enter configuration mode, define the configuration, exit to
     privileged EXEC, and save the configuration to memory.
+
+    TLDR output, commands only, no Markdown or code fences.
   context:
     next_hop: 192.0.2.1
 

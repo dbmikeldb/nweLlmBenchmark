@@ -20,11 +20,6 @@ SAVE_COMMAND_VARIANTS = {
 }
 
 
-def _strip_code_fence(response_text: str) -> str:
-    match = re.search(r"```[^\n]*\n(.*?)```", response_text, re.DOTALL)
-    return match.group(1) if match else response_text
-
-
 def _line_present(response_text: str, target: str) -> bool:
     pattern = rf"^\s*{re.escape(target)}\s*$"
     return bool(re.search(pattern, response_text, re.MULTILINE | re.IGNORECASE))
@@ -69,7 +64,6 @@ def _check_isolation(response_text: str, isolation: dict) -> bool:
 
 def grade(response_text: str, task: dict) -> dict:
     criteria = task["grading"]["pass_criteria"]
-    body = _strip_code_fence(response_text)
 
     results = {}
 
@@ -89,7 +83,7 @@ def grade(response_text: str, task: dict) -> dict:
         )
 
     if "isolation" in criteria:
-        results["isolation"] = _check_isolation(body, criteria["isolation"])
+        results["isolation"] = _check_isolation(response_text, criteria["isolation"])
 
     results["pass"] = all(results.values()) if results else False
     return results

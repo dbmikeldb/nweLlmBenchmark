@@ -15,6 +15,8 @@ llm_input:
 
     Enter configuration mode, apply the change, exit to privileged EXEC,
     and save the configuration to memory.
+
+    TLDR output, commands only, no Markdown or code fences.
   context:
     interface: GigabitEthernet0/1
     ip_address: 192.168.0.1
