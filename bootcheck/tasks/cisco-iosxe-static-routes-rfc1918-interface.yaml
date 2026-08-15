@@ -1,0 +1,52 @@
+id: cisco-iosxe-static-routes-rfc1918-interface
+vendor: cisco
+os_train: iosxe
+tier: bootcheck
+scoring: binary
+title: Static routes to RFC1918 networks via interface next hop
+
+llm_input:
+  prompt: |
+    Provide the Cisco IOS-XE CLI configuration to add static routes via
+    interface GigabitEthernet0/1, specifying only the interface as the
+    next hop, for each of the following networks:
+
+    - 10.0.0.0/8
+    - 172.16.0.0/12
+    - 192.168.0.0/16
+
+    Do not provide any configuration for GigabitEthernet0/1, only the static route configuration.
+
+    Enter configuration mode, define the configuration, exit to
+    privileged EXEC, and save the configuration to memory.
+
+    TLDR output, commands only, no Markdown or code fences.
+  context:
+    interface: GigabitEthernet0/1
+    networks:
+      - 10.0.0.0/8
+      - 172.16.0.0/12
+      - 192.168.0.0/16
+
+grading:
+  expected_config: |
+    configure terminal
+    !
+    ip route 10.0.0.0 255.0.0.0 GigabitEthernet0/1
+    ip route 172.16.0.0 255.240.0.0 GigabitEthernet0/1
+    ip route 192.168.0.0 255.255.0.0 GigabitEthernet0/1
+    !
+    exit
+    end
+    write memory
+  pass_criteria:
+    required_lines:
+      - "ip route 10.0.0.0 255.0.0.0 GigabitEthernet0/1"
+      - "ip route 172.16.0.0 255.240.0.0 GigabitEthernet0/1"
+      - "ip route 192.168.0.0 255.255.0.0 GigabitEthernet0/1"
+    config_saved: true
+    isolation:
+      allowed_top_level_prefixes:
+        - "ip route 10.0.0.0 255.0.0.0"
+        - "ip route 172.16.0.0 255.240.0.0"
+        - "ip route 192.168.0.0 255.255.0.0"
