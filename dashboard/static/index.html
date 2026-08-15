@@ -17,6 +17,11 @@
       <select id="date-filter">
         <option value="">All dates</option>
       </select>
+
+      <label for="run-filter">Run</label>
+      <select id="run-filter" disabled>
+        <option value="">Select a date first</option>
+      </select>
     </div>
 
     <table id="leaderboard">
@@ -33,6 +38,22 @@
         <tr><td colspan="5">Loading…</td></tr>
       </tbody>
     </table>
+
+    <section id="run-detail" class="run-detail hidden">
+      <h2 id="run-detail-title"></h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Model</th>
+            <th>Status</th>
+            <th>Cost</th>
+            <th>Latency</th>
+            <th>Details</th>
+          </tr>
+        </thead>
+        <tbody id="run-detail-body"></tbody>
+      </table>
+    </section>
   </main>
 
   <script src="/app.js"></script>
