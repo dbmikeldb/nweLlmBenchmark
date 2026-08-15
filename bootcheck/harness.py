@@ -1,4 +1,5 @@
 import argparse
+import asyncio
 import json
 import sys
 from datetime import datetime, timezone
@@ -18,11 +19,11 @@ def load_task(path: Path) -> dict:
     return yaml.safe_load(path.read_text())
 
 
-def call_model(client: RequestyClient, task: dict, model: str) -> dict:
+async def acall_model(client: RequestyClient, task: dict, model: str) -> dict:
     prompt = task["llm_input"]["prompt"]
 
     try:
-        result = client.chat(model=model, messages=[{"role": "user", "content": prompt}])
+        result = await client.achat(model=model, messages=[{"role": "user", "content": prompt}])
     except Exception as exc:
         return {
             "timestamp": datetime.now(timezone.utc).isoformat(),
@@ -52,7 +53,7 @@ def call_model(client: RequestyClient, task: dict, model: str) -> dict:
     }
 
 
-def run(task_path: Path, models: list[str]) -> None:
+async def run(task_path: Path, models: list[str], concurrency: int = 5) -> None:
     task = load_task(task_path)
     client = RequestyClient()
 
@@ -60,20 +61,26 @@ def run(task_path: Path, models: list[str]) -> None:
     task_results_dir.mkdir(parents=True, exist_ok=True)
     run_file = task_results_dir / f"{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}.jsonl"
 
+    semaphore = asyncio.Semaphore(concurrency)
+
+    async def bound_call(model: str) -> dict:
+        async with semaphore:
+            return await acall_model(client, task, model)
+
     records = []
-    for model in models:
-        record = call_model(client, task, model)
+    for coro in asyncio.as_completed([bound_call(model) for model in models]):
+        record = await coro
         records.append(record)
 
         with run_file.open("a") as f:
             f.write(json.dumps(record) + "\n")
 
         if "error" in record:
-            print(f"[ERROR] {model}: {record['error']}")
+            print(f"[ERROR] {record['model']}: {record['error']}")
             continue
 
         status = "PASS" if record["grading"]["pass"] else "FAIL"
-        print(f"[{status}] {model}  cost=${record['cost_usd']}  latency={record['latency_ms']:.0f}ms")
+        print(f"[{status}] {record['model']}  cost=${record['cost_usd']}  latency={record['latency_ms']:.0f}ms")
 
     if len(models) == 1 and "response" in records[0]:
         print("\n--- response ---")
@@ -95,6 +102,12 @@ def main() -> None:
         required=True,
         help="Requesty model id, e.g. google/gemma-4-31b-it, or 'all_free' to sweep every free-tier model",
     )
+    parser.add_argument(
+        "--concurrency",
+        type=int,
+        default=5,
+        help="Max concurrent model calls in flight (default: 5)",
+    )
     args = parser.parse_args()
 
     if args.model == "all_free":
@@ -103,7 +116,7 @@ def main() -> None:
     else:
         models = [args.model]
 
-    run(args.task, models)
+    asyncio.run(run(args.task, models, concurrency=args.concurrency))
 
 
 if __name__ == "__main__":
