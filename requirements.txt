@@ -2,3 +2,5 @@ openai
 python-dotenv
 httpx
 pyyaml
+fastapi
+uvicorn
