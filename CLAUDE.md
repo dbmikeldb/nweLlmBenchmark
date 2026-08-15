@@ -19,6 +19,10 @@
 - Before writing a Cisco IOS-XE bootcheck task's `expected_config` / `pass_criteria`, look up a real
   Cisco IOS-XE configuration guide example for the feature under test (official Cisco documentation)
   to ground the answer key in verified syntax rather than assumption.
+- Every task must set a `category` field (alongside `vendor`/`os_train`/`tier`) so results can be
+  rolled up by function independent of vendor — this is what makes the benchmark's dashboard
+  cross-vendor. Current values: `interface-config`, `static-routing`. Add a new category only when a
+  task genuinely doesn't fit an existing one; don't create near-duplicate categories.
 
 ## Autonomous / overnight (/loop) work
 

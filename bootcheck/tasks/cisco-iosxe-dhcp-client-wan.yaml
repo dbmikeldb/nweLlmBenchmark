@@ -2,6 +2,7 @@ id: cisco-iosxe-dhcp-client-wan
 vendor: cisco
 os_train: iosxe
 tier: bootcheck
+category: interface-config
 scoring: binary
 title: WAN interface, DHCP client, admin up
 

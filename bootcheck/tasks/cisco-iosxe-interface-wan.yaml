@@ -2,6 +2,7 @@ id: cisco-iosxe-interface-wan
 vendor: cisco
 os_train: iosxe
 tier: bootcheck
+category: interface-config
 scoring: binary
 title: WAN interface, admin up, best-practice hardening
 
