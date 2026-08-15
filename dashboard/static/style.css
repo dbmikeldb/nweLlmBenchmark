@@ -53,6 +53,38 @@ h1 {
   padding: 0.3rem 0.5rem;
 }
 
+.hidden {
+  display: none;
+}
+
+.runs, .run-detail {
+  margin-top: 2rem;
+}
+
+.runs h2, .run-detail h2 {
+  font-size: 1.1rem;
+  margin: 0 0 0.75rem 0;
+}
+
+.run-row {
+  cursor: pointer;
+}
+
+.run-row:hover {
+  background: var(--row-alt);
+}
+
+#run-detail pre {
+  white-space: pre-wrap;
+  max-height: 300px;
+  overflow-y: auto;
+  background: var(--row-alt);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.5rem;
+  margin: 0.5rem 0 0 0;
+}
+
 table {
   width: 100%;
   max-width: 900px;

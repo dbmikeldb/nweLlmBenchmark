@@ -1,5 +1,6 @@
 import glob
 import json
+from datetime import datetime
 from pathlib import Path
 
 import yaml
@@ -41,6 +42,71 @@ def load_runs(date: str | None = None) -> list[dict]:
 
 def list_available_dates() -> list[str]:
     return sorted({run["timestamp"][:10] for run in load_runs()})
+
+
+def list_runs(date: str | None = None) -> list[dict]:
+    tasks = load_tasks()
+    runs = []
+    for path in glob.glob(str(RUNS_DIR / "**" / "*.jsonl"), recursive=True):
+        p = Path(path)
+        task_id = p.parent.name
+        run_timestamp = p.stem
+        run_date = datetime.strptime(run_timestamp, "%Y%m%dT%H%M%SZ").strftime("%Y-%m-%d")
+        if date is not None and run_date != date:
+            continue
+
+        models = 0
+        errors = 0
+        with open(path) as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                models += 1
+                if "error" in json.loads(line):
+                    errors += 1
+
+        task = tasks.get(task_id, {})
+        runs.append({
+            "run_id": f"{task_id}/{run_timestamp}",
+            "task_id": task_id,
+            "title": task.get("title", task_id),
+            "vendor": task.get("vendor"),
+            "os_train": task.get("os_train"),
+            "timestamp": run_timestamp,
+            "date": run_date,
+            "models": models,
+            "errors": errors,
+        })
+
+    runs.sort(key=lambda r: r["timestamp"], reverse=True)
+    return runs
+
+
+def load_run(run_id: str) -> dict | None:
+    path = (RUNS_DIR / f"{run_id}.jsonl").resolve()
+    if not path.is_relative_to(RUNS_DIR.resolve()) or not path.is_file():
+        return None
+
+    task_id = run_id.split("/")[0]
+    task = load_tasks().get(task_id, {})
+
+    records = []
+    with open(path) as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            records.append(json.loads(line))
+
+    return {
+        "run_id": run_id,
+        "task_id": task_id,
+        "title": task.get("title", task_id),
+        "vendor": task.get("vendor"),
+        "os_train": task.get("os_train"),
+        "records": records,
+    }
 
 
 def build_leaderboard(date: str | None = None) -> list[dict]:

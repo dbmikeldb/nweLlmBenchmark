@@ -33,6 +33,40 @@
         <tr><td colspan="5">Loading…</td></tr>
       </tbody>
     </table>
+
+    <section class="runs">
+      <h2>Runs</h2>
+      <table id="runs-table">
+        <thead>
+          <tr>
+            <th>Task</th>
+            <th>Vendor / OS Train</th>
+            <th>Timestamp (UTC)</th>
+            <th>Models</th>
+            <th>Errors</th>
+          </tr>
+        </thead>
+        <tbody id="runs-body">
+          <tr><td colspan="5">Loading…</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="run-detail" class="run-detail hidden">
+      <h2 id="run-detail-title"></h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Model</th>
+            <th>Status</th>
+            <th>Cost</th>
+            <th>Latency</th>
+            <th>Details</th>
+          </tr>
+        </thead>
+        <tbody id="run-detail-body"></tbody>
+      </table>
+    </section>
   </main>
 
   <script src="/app.js"></script>
