@@ -46,37 +46,36 @@ async function loadLeaderboard(date) {
   `).join("");
 }
 
-async function loadRuns(date) {
-  const body = document.getElementById("runs-body");
+async function loadRunOptions(date) {
+  const select = document.getElementById("run-filter");
+  document.getElementById("run-detail").classList.add("hidden");
+
+  if (!date) {
+    select.innerHTML = `<option value="">Select a date first</option>`;
+    select.disabled = true;
+    return;
+  }
 
   let runs;
   try {
-    const url = date ? `/api/runs?date=${date}` : "/api/runs";
-    const res = await fetch(url);
+    const res = await fetch(`/api/runs?date=${date}`);
     runs = await res.json();
   } catch (err) {
-    body.innerHTML = `<tr><td colspan="5">Failed to load runs: ${err}</td></tr>`;
+    select.innerHTML = `<option value="">Failed to load runs</option>`;
+    select.disabled = true;
     return;
   }
 
   if (runs.length === 0) {
-    body.innerHTML = `<tr><td colspan="5">No runs yet.</td></tr>`;
+    select.innerHTML = `<option value="">No runs on this date</option>`;
+    select.disabled = true;
     return;
   }
 
-  body.innerHTML = runs.map(run => `
-    <tr class="run-row" data-run-id="${run.run_id}">
-      <td>${run.title}</td>
-      <td>${run.vendor} / ${run.os_train}</td>
-      <td>${run.timestamp}</td>
-      <td>${run.models}</td>
-      <td>${run.errors}</td>
-    </tr>
-  `).join("");
-
-  for (const row of body.querySelectorAll(".run-row")) {
-    row.addEventListener("click", () => loadRunDetail(row.dataset.runId));
-  }
+  select.innerHTML = `<option value="">All runs</option>` + runs.map(run =>
+    `<option value="${run.run_id}">${run.title} — ${run.timestamp}${run.errors ? ` (${run.errors} errors)` : ""}</option>`
+  ).join("");
+  select.disabled = false;
 }
 
 async function loadRunDetail(runId) {
@@ -132,11 +131,21 @@ async function loadDates() {
 
   select.addEventListener("change", () => {
     loadLeaderboard(select.value);
-    loadRuns(select.value);
-    document.getElementById("run-detail").classList.add("hidden");
+    loadRunOptions(select.value);
+  });
+}
+
+function setupRunFilter() {
+  const select = document.getElementById("run-filter");
+  select.addEventListener("change", () => {
+    if (select.value) {
+      loadRunDetail(select.value);
+    } else {
+      document.getElementById("run-detail").classList.add("hidden");
+    }
   });
 }
 
 loadDates();
 loadLeaderboard();
-loadRuns();
+setupRunFilter();

@@ -57,21 +57,17 @@ h1 {
   display: none;
 }
 
-.runs, .run-detail {
+.controls select:disabled {
+  opacity: 0.5;
+}
+
+.run-detail {
   margin-top: 2rem;
 }
 
-.runs h2, .run-detail h2 {
+.run-detail h2 {
   font-size: 1.1rem;
   margin: 0 0 0.75rem 0;
-}
-
-.run-row {
-  cursor: pointer;
-}
-
-.run-row:hover {
-  background: var(--row-alt);
 }
 
 #run-detail pre {
