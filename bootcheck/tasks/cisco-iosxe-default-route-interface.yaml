@@ -2,6 +2,7 @@ id: cisco-iosxe-default-route-interface
 vendor: cisco
 os_train: iosxe
 tier: bootcheck
+category: static-routing
 scoring: binary
 title: Static default route via interface next hop
 
