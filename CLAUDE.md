@@ -1,6 +1,8 @@
 # Repo instructions
 
 - Never add a `Co-Authored-By: Claude` (or any AI co-author) trailer to commit messages in this repo.
+- Every command run in this repo must be accompanied by a description and a justification for why
+  it's being run — not just a label for what it does.
 
 ## Branching strategy
 
