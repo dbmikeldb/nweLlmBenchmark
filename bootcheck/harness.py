@@ -56,8 +56,9 @@ def run(task_path: Path, models: list[str]) -> None:
     task = load_task(task_path)
     client = RequestyClient()
 
-    RESULTS_DIR.mkdir(parents=True, exist_ok=True)
-    run_file = RESULTS_DIR / f"{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}.jsonl"
+    task_results_dir = RESULTS_DIR / task["id"]
+    task_results_dir.mkdir(parents=True, exist_ok=True)
+    run_file = task_results_dir / f"{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}.jsonl"
 
     records = []
     for model in models:
