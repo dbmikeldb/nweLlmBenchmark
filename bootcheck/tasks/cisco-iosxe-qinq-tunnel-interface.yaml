@@ -1,0 +1,46 @@
+id: cisco-iosxe-qinq-tunnel-interface
+vendor: cisco
+os_train: iosxe
+tier: bootcheck
+category: interface-config
+scoring: binary
+title: Q-in-Q tunnel interface
+
+llm_input:
+  prompt: |
+    Provide the Cisco IOS-XE CLI configuration to place customer-facing
+    interface GigabitEthernet0/2 into access VLAN 1010 and configure it as
+    an IEEE 802.1Q tunnel (Q-in-Q) interface, so all customer VLAN tags are
+    preserved and carried inside provider VLAN 1010.
+
+    GigabitEthernet0/2 is currently administratively down with no prior
+    switchport configuration.
+
+    Enter configuration mode, apply the change, exit to privileged EXEC,
+    and save the configuration to memory.
+
+    TLDR output, full syntax commands only, no Markdown or code fences.
+  context:
+    interface: GigabitEthernet0/2
+    access_vlan: 1010
+
+grading:
+  expected_config: |
+    configure terminal
+    !
+    interface GigabitEthernet0/2
+     switchport access vlan 1010
+     switchport mode dot1q-tunnel
+     no shutdown
+    !
+    exit
+    end
+    write memory
+  pass_criteria:
+    required_lines:
+      - "switchport access vlan 1010"
+      - "switchport mode dot1q-tunnel"
+      - "no shutdown"
+    config_saved: true
+    isolation:
+      interface: GigabitEthernet0/2

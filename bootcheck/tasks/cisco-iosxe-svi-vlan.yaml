@@ -1,0 +1,59 @@
+id: cisco-iosxe-svi-vlan
+vendor: cisco
+os_train: iosxe
+tier: bootcheck
+category: interface-config
+scoring: binary
+title: SVI for a VLAN
+
+llm_input:
+  prompt: |
+    Provide the Cisco IOS-XE CLI configuration to create VLAN 10 named
+    USERS, then create its switch virtual interface (SVI) as the default
+    gateway for that VLAN, with a description of [SVI]-[VLAN10]-[USERS]
+    and an IP address of 192.0.2.1 on network 255.255.255.0.
+
+    VLAN 10 does not currently exist on this device.
+
+    Enter configuration mode, apply the change, exit to privileged EXEC,
+    and save the configuration to memory.
+
+    TLDR output, full syntax commands only, no Markdown or code fences.
+  context:
+    vlan_id: 10
+    vlan_name: USERS
+    interface: Vlan10
+    ip_address: 192.0.2.1
+    prefix_length: 24
+    description: "[SVI]-[VLAN10]-[USERS]"
+
+grading:
+  expected_config: |
+    configure terminal
+    !
+    vlan 10
+     name USERS
+    exit
+    !
+    interface Vlan10
+     description [SVI]-[VLAN10]-[USERS]
+     ip address 192.0.2.1 255.255.255.0
+     no shutdown
+    !
+    exit
+    end
+    write memory
+  pass_criteria:
+    required_lines:
+      - "vlan 10"
+      - "name USERS"
+      - "ip address 192.0.2.1 255.255.255.0"
+      - "no shutdown"
+    required_substrings:
+      - "[SVI]-[VLAN10]-[USERS]"
+    config_saved: true
+    isolation:
+      interface: Vlan10
+      allowed_top_level_prefixes:
+        - "vlan "
+        - "name "

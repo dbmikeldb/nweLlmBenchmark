@@ -1,0 +1,45 @@
+id: cisco-iosxe-interface-service-instance
+vendor: cisco
+os_train: iosxe
+tier: bootcheck
+category: interface-config
+scoring: binary
+title: Interface service instance for a bridge domain
+
+llm_input:
+  prompt: |
+    Provide the Cisco IOS-XE CLI configuration to create service instance 10
+    on interface GigabitEthernet0/2, classifying VLAN 10 traffic with
+    802.1Q encapsulation and binding it to bridge-domain 10.
+
+    GigabitEthernet0/2 is administratively up with no prior service
+    instance configuration.
+
+    Enter configuration mode, apply the change, exit to privileged EXEC,
+    and save the configuration to memory.
+
+    TLDR output, full syntax commands only, no Markdown or code fences.
+  context:
+    interface: GigabitEthernet0/2
+    service_instance_id: 10
+    vlan_id: 10
+    bridge_domain_id: 10
+
+grading:
+  expected_config: |
+    configure terminal
+    !
+    interface GigabitEthernet0/2
+     service instance 10 ethernet
+      encapsulation dot1q 10
+      bridge-domain 10
+    end
+    write memory
+  pass_criteria:
+    required_lines:
+      - "service instance 10 ethernet"
+      - "encapsulation dot1q 10"
+      - "bridge-domain 10"
+    config_saved: true
+    isolation:
+      interface: GigabitEthernet0/2

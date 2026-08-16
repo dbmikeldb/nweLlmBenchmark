@@ -1,0 +1,48 @@
+id: cisco-iosxe-bdi-bridge-domain
+vendor: cisco
+os_train: iosxe
+tier: bootcheck
+category: interface-config
+scoring: binary
+title: Bridge domain interface
+
+llm_input:
+  prompt: |
+    Provide the Cisco IOS-XE CLI configuration to create routed interface
+    BDI10 for bridge domain 10, with a description of [BDI10]-[USERS] and
+    an IP address of 192.0.2.1 on network 255.255.255.0.
+
+    GigabitEthernet0/2 already has a service instance bound to bridge
+    domain 10; that configuration is out of scope for this task.
+
+    Enter configuration mode, apply the change, exit to privileged EXEC,
+    and save the configuration to memory.
+
+    TLDR output, full syntax commands only, no Markdown or code fences.
+  context:
+    interface: BDI10
+    ip_address: 192.0.2.1
+    prefix_length: 24
+    description: "[BDI10]-[USERS]"
+
+grading:
+  expected_config: |
+    configure terminal
+    !
+    interface BDI10
+     description [BDI10]-[USERS]
+     ip address 192.0.2.1 255.255.255.0
+     no shutdown
+    !
+    exit
+    end
+    write memory
+  pass_criteria:
+    required_lines:
+      - "ip address 192.0.2.1 255.255.255.0"
+      - "no shutdown"
+    required_substrings:
+      - "[BDI10]-[USERS]"
+    config_saved: true
+    isolation:
+      interface: BDI10
