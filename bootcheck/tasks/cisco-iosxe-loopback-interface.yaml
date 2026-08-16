@@ -1,0 +1,45 @@
+id: cisco-iosxe-loopback-interface
+vendor: cisco
+os_train: iosxe
+tier: bootcheck
+category: interface-config
+scoring: binary
+title: Loopback interface
+
+llm_input:
+  prompt: |
+    Provide the Cisco IOS-XE CLI configuration to create Loopback0 as a
+    stable router-id address, with a description of [INBAND]-[MGMT]
+    and an IP address of 192.0.2.1 on network 255.255.255.255.
+
+    No prior loopback interfaces exist on this device.
+
+    Enter configuration mode, apply the change, exit to privileged EXEC,
+    and save the configuration to memory.
+
+    TLDR output, full syntax commands only, no Markdown or code fences.
+  context:
+    interface: Loopback0
+    ip_address: 192.0.2.1
+    prefix_length: 32
+    description: "[INBAND]-[MGMT]"
+
+grading:
+  expected_config: |
+    configure terminal
+    !
+    interface Loopback0
+     description [INBAND]-[MGMT]
+     ip address 192.0.2.1 255.255.255.255
+    !
+    exit
+    end
+    write memory
+  pass_criteria:
+    required_lines:
+      - "ip address 192.0.2.1 255.255.255.255"
+    required_substrings:
+      - "[INBAND]-[MGMT]"
+    config_saved: true
+    isolation:
+      interface: Loopback0

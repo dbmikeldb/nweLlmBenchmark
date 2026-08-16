@@ -1,0 +1,50 @@
+id: cisco-iosxe-subinterface-dot1q
+vendor: cisco
+os_train: iosxe
+tier: bootcheck
+category: interface-config
+scoring: binary
+title: 802.1Q subinterface
+
+llm_input:
+  prompt: |
+    Provide the Cisco IOS-XE CLI configuration to create
+    subinterface GigabitEthernet0/2.10 for VLAN 10, with a description of
+    [SVC]-[VLAN10]-[USERS], 802.1Q encapsulation for VLAN 10,
+    and an IP address of 192.0.2.1 on network 255.255.255.0.
+
+    GigabitEthernet0/2 is already configured as an 802.1Q trunk and is
+    administratively up.
+
+    Enter configuration mode, apply the change, exit to privileged EXEC,
+    and save the configuration to memory.
+
+    TLDR output, full syntax commands only, no Markdown or code fences.
+  context:
+    interface: GigabitEthernet0/2.10
+    vlan_id: 10
+    ip_address: 192.0.2.1
+    prefix_length: 24
+    description: "[SVC]-[VLAN10]-[USERS]"
+
+grading:
+  expected_config: |
+    configure terminal
+    !
+    interface GigabitEthernet0/2.10
+     description [SVC]-[VLAN10]-[USERS]
+     encapsulation dot1Q 10
+     ip address 192.0.2.1 255.255.255.0
+    !
+    exit
+    end
+    write memory
+  pass_criteria:
+    required_lines:
+      - "encapsulation dot1Q 10"
+      - "ip address 192.0.2.1 255.255.255.0"
+    required_substrings:
+      - "[SVC]-[VLAN10]-[USERS]"
+    config_saved: true
+    isolation:
+      interface: GigabitEthernet0/2.10

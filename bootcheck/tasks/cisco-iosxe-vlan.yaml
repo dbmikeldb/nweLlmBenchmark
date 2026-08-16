@@ -1,0 +1,39 @@
+id: cisco-iosxe-vlan
+vendor: cisco
+os_train: iosxe
+tier: bootcheck
+category: interface-config
+scoring: binary
+title: VLAN
+
+llm_input:
+  prompt: |
+    Provide the Cisco IOS-XE CLI configuration to create VLAN 10 named
+    USERS.
+
+    Enter configuration mode, apply the change, exit to privileged EXEC,
+    and save the configuration to memory.
+
+    TLDR output, full syntax commands only, no Markdown or code fences.
+  context:
+    vlan_id: 10
+    vlan_name: USERS
+
+grading:
+  expected_config: |
+    configure terminal
+    !
+    vlan 10
+     name USERS
+    exit
+    end
+    write memory
+  pass_criteria:
+    required_lines:
+      - "vlan 10"
+      - "name USERS"
+    config_saved: true
+    isolation:
+      allowed_top_level_prefixes:
+        - "vlan "
+        - "name "
