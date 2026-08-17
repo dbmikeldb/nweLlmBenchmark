@@ -22,3 +22,21 @@ Observed on: `cisco-iosxe-svi-vlan` — in a 12-model free-tier sweep
 (all required lines, description, and save present) and failed solely on
 this isolation mismatch. Only 1/9 models happened to write the no-space
 `vlan10` form and passed.
+
+## Provider quirks
+
+Gaps outside `grading.py` — in how the harness talks to a provider — that can
+silently produce misleading results if not accounted for.
+
+### OpenRouter model IDs need an explicit `:free` suffix for zero-cost calls
+
+`--provider openrouter` model IDs are not guaranteed free just because the
+same bare ID (e.g. `google/gemma-4-31b-it`) is free on Requesty, or because
+it appears without a suffix elsewhere. On OpenRouter, passing the plain ID
+without `:free` can silently resolve to a paid variant of the same model —
+confirmed 2026-08-17: `google/gemma-4-31b-it` on `--provider openrouter`
+returned `cost_usd: 4.066e-05` (not free), while the same model requested as
+`google/gemma-4-31b-it:free` returned `cost_usd: 0.0`. `list_free_models()`
+for the openrouter client already returns the correct `:free`-suffixed IDs —
+this only bites if a model ID is typed in manually (e.g. copied from a
+Requesty run) instead of sourced from that list.

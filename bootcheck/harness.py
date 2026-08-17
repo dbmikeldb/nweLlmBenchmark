@@ -10,16 +10,24 @@ import yaml
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from bootcheck.grading import grade
-from requesty_client import RequestyClient, list_free_models
+from openrouter_client import OpenRouterClient
+from openrouter_client import list_free_models as list_free_openrouter
+from requesty_client import RequestyClient
+from requesty_client import list_free_models as list_free_requesty
 
 RESULTS_DIR = Path(__file__).resolve().parent.parent / "results" / "runs"
+
+PROVIDERS = {
+    "requesty": (RequestyClient, list_free_requesty),
+    "openrouter": (OpenRouterClient, list_free_openrouter),
+}
 
 
 def load_task(path: Path) -> dict:
     return yaml.safe_load(path.read_text())
 
 
-async def acall_model(client: RequestyClient, task: dict, model: str) -> dict:
+async def acall_model(client: RequestyClient | OpenRouterClient, task: dict, model: str, provider: str) -> dict:
     prompt = task["llm_input"]["prompt"]
 
     try:
@@ -31,6 +39,7 @@ async def acall_model(client: RequestyClient, task: dict, model: str) -> dict:
             "vendor": task["vendor"],
             "os_train": task["os_train"],
             "tier": task["tier"],
+            "provider": provider,
             "model": model,
             "error": str(exc),
         }
@@ -43,6 +52,7 @@ async def acall_model(client: RequestyClient, task: dict, model: str) -> dict:
         "vendor": task["vendor"],
         "os_train": task["os_train"],
         "tier": task["tier"],
+        "provider": provider,
         "model": model,
         "response": result.content,
         "grading": grading,
@@ -53,9 +63,10 @@ async def acall_model(client: RequestyClient, task: dict, model: str) -> dict:
     }
 
 
-async def run(task_path: Path, models: list[str], concurrency: int = 5) -> None:
+async def run(task_path: Path, models: list[str], provider: str = "requesty", concurrency: int = 5) -> None:
     task = load_task(task_path)
-    client = RequestyClient()
+    client_cls, _ = PROVIDERS[provider]
+    client = client_cls()
 
     task_results_dir = RESULTS_DIR / task["id"]
     task_results_dir.mkdir(parents=True, exist_ok=True)
@@ -65,7 +76,7 @@ async def run(task_path: Path, models: list[str], concurrency: int = 5) -> None:
 
     async def bound_call(model: str) -> dict:
         async with semaphore:
-            return await acall_model(client, task, model)
+            return await acall_model(client, task, model, provider)
 
     records = []
     for coro in asyncio.as_completed([bound_call(model) for model in models]):
@@ -100,7 +111,13 @@ def main() -> None:
     parser.add_argument(
         "--model",
         required=True,
-        help="Requesty model id, e.g. google/gemma-4-31b-it, or 'all_free' to sweep every free-tier model",
+        help="Provider model id, e.g. google/gemma-4-31b-it, or 'all_free' to sweep every free-tier model",
+    )
+    parser.add_argument(
+        "--provider",
+        choices=sorted(PROVIDERS),
+        default="requesty",
+        help="Which gateway to route calls through (default: requesty)",
     )
     parser.add_argument(
         "--concurrency",
@@ -110,13 +127,15 @@ def main() -> None:
     )
     args = parser.parse_args()
 
+    _, list_free_fn = PROVIDERS[args.provider]
+
     if args.model == "all_free":
-        models = [m["id"] for m in list_free_models()]
-        print(f"Sweeping {len(models)} free models...")
+        models = [m["id"] for m in list_free_fn()]
+        print(f"Sweeping {len(models)} free models on {args.provider}...")
     else:
         models = [args.model]
 
-    asyncio.run(run(args.task, models, concurrency=args.concurrency))
+    asyncio.run(run(args.task, models, provider=args.provider, concurrency=args.concurrency))
 
 
 if __name__ == "__main__":
