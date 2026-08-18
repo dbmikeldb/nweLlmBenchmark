@@ -1,0 +1,37 @@
+id: cisco-iosxe-static-route-null0
+vendor: cisco
+os_train: iosxe
+tier: bootcheck
+category: static-routing
+scoring: binary
+title: Static route to Null0 for black-hole routing
+
+llm_input:
+  prompt: |
+    Provide the Cisco IOS-XE CLI configuration to add a static route that
+    discards all traffic destined for network 192.0.2.0/24 by routing it
+    to the Null0 interface.
+
+    Enter configuration mode, define the configuration, exit to
+    privileged EXEC, and save the configuration to memory.
+
+    TLDR output, full syntax commands only, no Markdown or code fences.
+  context:
+    network: 192.0.2.0/24
+
+grading:
+  expected_config: |
+    configure terminal
+    !
+    ip route 192.0.2.0 255.255.255.0 Null0
+    !
+    exit
+    end
+    write memory
+  pass_criteria:
+    required_lines:
+      - "ip route 192.0.2.0 255.255.255.0 Null0"
+    config_saved: true
+    isolation:
+      allowed_top_level_prefixes:
+        - "ip route 192.0.2.0 255.255.255.0"
