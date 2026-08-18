@@ -26,4 +26,5 @@ def list_free_models(api_key: str | None = None, base_url: str = DEFAULT_BASE_UR
         for m in models
         if float((m.get("pricing") or {}).get("prompt") or 0) == 0
         and float((m.get("pricing") or {}).get("completion") or 0) == 0
+        and (m.get("architecture") or {}).get("output_modalities") == ["text"]
     ]
