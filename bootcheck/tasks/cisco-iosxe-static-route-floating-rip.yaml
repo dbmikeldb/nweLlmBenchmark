@@ -1,0 +1,45 @@
+id: cisco-iosxe-static-route-floating-rip
+vendor: cisco
+os_train: iosxe
+tier: bootcheck
+category: static-routing
+scoring: binary
+title: Floating static route for a RIP route
+
+llm_input:
+  prompt: |
+    Provide the Cisco IOS-XE CLI configuration to add a floating static
+    route to network 198.51.100.0/24 via next-hop IP address 192.0.2.1,
+    specifying only the IP address as the next hop.
+
+    This route is a backup path for a RIP-learned route to the same
+    network, so it must only be installed when that RIP route is
+    unavailable. Set the administrative distance to the next valid
+    administrative distance above RIP's default administrative distance.
+
+    Enter configuration mode, define the configuration, exit to
+    privileged EXEC, and save the configuration to memory.
+
+    TLDR output, full syntax commands only, no Markdown or code fences.
+  context:
+    network: 198.51.100.0/24
+    next_hop: 192.0.2.1
+    dynamic_protocol: RIP
+    dynamic_protocol_default_distance: 120
+
+grading:
+  expected_config: |
+    configure terminal
+    !
+    ip route 198.51.100.0 255.255.255.0 192.0.2.1 121
+    !
+    exit
+    end
+    write memory
+  pass_criteria:
+    required_lines:
+      - "ip route 198.51.100.0 255.255.255.0 192.0.2.1 121"
+    config_saved: true
+    isolation:
+      allowed_top_level_prefixes:
+        - "ip route 198.51.100.0 255.255.255.0"

@@ -1,0 +1,43 @@
+id: cisco-iosxe-static-route-ecmp
+vendor: cisco
+os_train: iosxe
+tier: bootcheck
+category: static-routing
+scoring: binary
+title: Equal-cost static routes for load balancing
+
+llm_input:
+  prompt: |
+    Provide the Cisco IOS-XE CLI configuration to add two static routes to
+    network 192.0.2.0/24 for equal-cost load balancing: one via next-hop IP
+    address 198.51.100.1, and one via next-hop IP address 203.0.113.1.
+    Specify only the IP address as the next hop for each route.
+
+    Enter configuration mode, define the configuration, exit to
+    privileged EXEC, and save the configuration to memory.
+
+    TLDR output, full syntax commands only, no Markdown or code fences.
+  context:
+    network: 192.0.2.0/24
+    next_hops:
+      - 198.51.100.1
+      - 203.0.113.1
+
+grading:
+  expected_config: |
+    configure terminal
+    !
+    ip route 192.0.2.0 255.255.255.0 198.51.100.1
+    ip route 192.0.2.0 255.255.255.0 203.0.113.1
+    !
+    exit
+    end
+    write memory
+  pass_criteria:
+    required_lines:
+      - "ip route 192.0.2.0 255.255.255.0 198.51.100.1"
+      - "ip route 192.0.2.0 255.255.255.0 203.0.113.1"
+    config_saved: true
+    isolation:
+      allowed_top_level_prefixes:
+        - "ip route 192.0.2.0 255.255.255.0"

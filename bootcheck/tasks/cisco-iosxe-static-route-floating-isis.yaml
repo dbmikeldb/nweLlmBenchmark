@@ -1,0 +1,45 @@
+id: cisco-iosxe-static-route-floating-isis
+vendor: cisco
+os_train: iosxe
+tier: bootcheck
+category: static-routing
+scoring: binary
+title: Floating static route for an IS-IS route
+
+llm_input:
+  prompt: |
+    Provide the Cisco IOS-XE CLI configuration to add a floating static
+    route to network 198.51.100.0/24 via next-hop IP address 192.0.2.1,
+    specifying only the IP address as the next hop.
+
+    This route is a backup path for an IS-IS-learned route to the same
+    network, so it must only be installed when that IS-IS route is
+    unavailable. Set the administrative distance to the next valid
+    administrative distance above IS-IS's default administrative distance.
+
+    Enter configuration mode, define the configuration, exit to
+    privileged EXEC, and save the configuration to memory.
+
+    TLDR output, full syntax commands only, no Markdown or code fences.
+  context:
+    network: 198.51.100.0/24
+    next_hop: 192.0.2.1
+    dynamic_protocol: IS-IS
+    dynamic_protocol_default_distance: 115
+
+grading:
+  expected_config: |
+    configure terminal
+    !
+    ip route 198.51.100.0 255.255.255.0 192.0.2.1 116
+    !
+    exit
+    end
+    write memory
+  pass_criteria:
+    required_lines:
+      - "ip route 198.51.100.0 255.255.255.0 192.0.2.1 116"
+    config_saved: true
+    isolation:
+      allowed_top_level_prefixes:
+        - "ip route 198.51.100.0 255.255.255.0"
