@@ -21,9 +21,4 @@ def list_models(api_key: str | None = None, base_url: str = DEFAULT_BASE_URL) ->
 
 def list_free_models(api_key: str | None = None, base_url: str = DEFAULT_BASE_URL) -> list[dict]:
     models = list_models(api_key, base_url)
-    return [
-        m
-        for m in models
-        if float((m.get("pricing") or {}).get("prompt") or 0) == 0
-        and float((m.get("pricing") or {}).get("completion") or 0) == 0
-    ]
+    return [m for m in models if m["id"].endswith(":free")]
