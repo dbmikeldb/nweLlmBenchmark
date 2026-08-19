@@ -1,10 +1,6 @@
-id: cisco-iosxe-static-route-floating-ebgp
-vendor: cisco
-os_train: iosxe
-tier: bootcheck
-category: static-routing
 scoring: binary
-title: Floating static route for an eBGP route
+title: Floating static route for an EIGRP route
+tags: [eigrp, floating-static]
 
 llm_input:
   prompt: |
@@ -12,10 +8,10 @@ llm_input:
     route to network 198.51.100.0/24 via next-hop IP address 192.0.2.1,
     specifying only the IP address as the next hop.
 
-    This route is a backup path for an eBGP-learned route to the same
-    network, so it must only be installed when that eBGP route is
+    This route is a backup path for an EIGRP-learned route to the same
+    network, so it must only be installed when that EIGRP route is
     unavailable. Set the administrative distance to the next valid
-    administrative distance above eBGP's default administrative distance.
+    administrative distance above EIGRP's default administrative distance.
 
     Enter configuration mode, define the configuration, exit to
     privileged EXEC, and save the configuration to memory.
@@ -24,21 +20,21 @@ llm_input:
   context:
     network: 198.51.100.0/24
     next_hop: 192.0.2.1
-    dynamic_protocol: eBGP
-    dynamic_protocol_default_distance: 20
+    dynamic_protocol: EIGRP
+    dynamic_protocol_default_distance: 90
 
 grading:
   expected_config: |
     configure terminal
     !
-    ip route 198.51.100.0 255.255.255.0 192.0.2.1 21
+    ip route 198.51.100.0 255.255.255.0 192.0.2.1 91
     !
     exit
     end
     write memory
   pass_criteria:
     required_lines:
-      - "ip route 198.51.100.0 255.255.255.0 192.0.2.1 21"
+      - "ip route 198.51.100.0 255.255.255.0 192.0.2.1 91"
     config_saved: true
     isolation:
       allowed_top_level_prefixes:

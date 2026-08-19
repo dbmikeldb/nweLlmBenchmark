@@ -1,27 +1,21 @@
-id: cisco-iosxe-interface-wan
-vendor: cisco
-os_train: iosxe
-tier: bootcheck
-category: interface-config
 scoring: binary
-title: WAN interface, admin up, best-practice hardening
+title: WAN interface, DHCP client, admin up
+tags: [dhcp, wan]
 
 llm_input:
   prompt: |
     Provide the Cisco IOS-XE CLI configuration to bring GigabitEthernet0/1
     administratively up, with a description of [WAN]-[CCT12345]-[100/1000]
-    and an IP address of 192.168.0.1 on network 255.255.255.0.
+    and configure it as a DHCP client to obtain its IP address dynamically.
 
-    Ensure Cisco best practices are configured for interface hardening.
+    Do not provide the DHCP server configuration, only the interface configuration.
 
-    Enter configuration mode, apply the change, exit to privileged EXEC,
+    Enter configuration mode, define the configuration, exit to privileged EXEC,
     and save the configuration to memory.
 
     TLDR output, full syntax commands only, no Markdown or code fences.
   context:
     interface: GigabitEthernet0/1
-    ip_address: 192.168.0.1
-    prefix_length: 24
     description: "[WAN]-[CCT12345]-[100/1000]"
 
 grading:
@@ -30,10 +24,7 @@ grading:
     !
     interface GigabitEthernet0/1
      description [WAN]-[CCT12345]-[100/1000]
-     ip address 192.168.0.1 255.255.255.0
-     no ip redirects
-     no ip unreachables
-     no ip proxy-arp
+     ip address dhcp
      no shutdown
     !
     exit
@@ -41,11 +32,8 @@ grading:
     write memory
   pass_criteria:
     required_lines:
+      - "ip address dhcp"
       - "no shutdown"
-      - "ip address 192.168.0.1 255.255.255.0"
-      - "no ip redirects"
-      - "no ip unreachables"
-      - "no ip proxy-arp"
     required_substrings:
       - "[WAN]-[CCT12345]-[100/1000]"
     config_saved: true

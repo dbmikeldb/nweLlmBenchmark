@@ -1,35 +1,34 @@
-id: cisco-iosxe-default-route-nexthop
-vendor: cisco
-os_train: iosxe
-tier: bootcheck
-category: static-routing
 scoring: binary
-title: Static default route via next-hop IP
+title: Static default route via interface next hop
+tags: [default-route]
 
 llm_input:
   prompt: |
-    Provide the Cisco IOS-XE CLI configuration to add a static default route via
-    next-hop IP address 192.0.2.1, specifying only the IP address as the next hop.
+    Provide the Cisco IOS-XE CLI configuration to add a static default
+    route via interface GigabitEthernet0/1, specifying only the interface
+    as the next hop.
+
+    Do not provide any configuration for GigabitEthernet0/1, only the static route configuration.
 
     Enter configuration mode, define the configuration, exit to
     privileged EXEC, and save the configuration to memory.
 
     TLDR output, full syntax commands only, no Markdown or code fences.
   context:
-    next_hop: 192.0.2.1
+    interface: GigabitEthernet0/1
 
 grading:
   expected_config: |
     configure terminal
     !
-    ip route 0.0.0.0 0.0.0.0 192.0.2.1
+    ip route 0.0.0.0 0.0.0.0 GigabitEthernet0/1
     !
     exit
     end
     write memory
   pass_criteria:
     required_lines:
-      - "ip route 0.0.0.0 0.0.0.0 192.0.2.1"
+      - "ip route 0.0.0.0 0.0.0.0 GigabitEthernet0/1"
     config_saved: true
     isolation:
       allowed_top_level_prefixes:
