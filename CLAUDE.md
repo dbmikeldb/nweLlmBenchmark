@@ -4,6 +4,15 @@
 - Every command run in this repo must be accompanied by a description and a justification for why
   it's being run — not just a label for what it does.
 
+## Repository Overview
+This repositoy is built to benchmark LLMs against Network Engineering tasks, with the goal of answering three questions:
+- Are LLMs generally `bad` at networking?
+- Which LLM is the 'best of a bad bunch'?
+- Do we need LLMs to be trained on low-level networking when GPT models have access to the Internet, Large context windows, and the ability to 'reason'?
+
+A series of tasks are defined within this repository, starting with the `bootcheck` tasks for Cisco IOS-XE. The aim is to determine one outcome:
+- Can a Cisco IOS-XE appliance boot with this configuration?
+
 ## Branching strategy
 
 `main` <- `dev` <- semantic branches.
