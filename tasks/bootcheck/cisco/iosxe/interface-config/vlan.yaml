@@ -1,10 +1,6 @@
-id: cisco-iosxe-vlan
-vendor: cisco
-os_train: iosxe
-tier: bootcheck
-category: interface-config
 scoring: binary
 title: VLAN
+tags: [vlan]
 
 llm_input:
   prompt: |

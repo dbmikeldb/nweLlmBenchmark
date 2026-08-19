@@ -1,10 +1,6 @@
-id: cisco-iosxe-static-route-floating-ospf
-vendor: cisco
-os_train: iosxe
-tier: bootcheck
-category: static-routing
 scoring: binary
-title: Floating static route for an OSPF route
+title: Floating static route for a RIP route
+tags: [rip, floating-static]
 
 llm_input:
   prompt: |
@@ -12,10 +8,10 @@ llm_input:
     route to network 198.51.100.0/24 via next-hop IP address 192.0.2.1,
     specifying only the IP address as the next hop.
 
-    This route is a backup path for an OSPF-learned route to the same
-    network, so it must only be installed when that OSPF route is
+    This route is a backup path for a RIP-learned route to the same
+    network, so it must only be installed when that RIP route is
     unavailable. Set the administrative distance to the next valid
-    administrative distance above OSPF's default administrative distance.
+    administrative distance above RIP's default administrative distance.
 
     Enter configuration mode, define the configuration, exit to
     privileged EXEC, and save the configuration to memory.
@@ -24,21 +20,21 @@ llm_input:
   context:
     network: 198.51.100.0/24
     next_hop: 192.0.2.1
-    dynamic_protocol: OSPF
-    dynamic_protocol_default_distance: 110
+    dynamic_protocol: RIP
+    dynamic_protocol_default_distance: 120
 
 grading:
   expected_config: |
     configure terminal
     !
-    ip route 198.51.100.0 255.255.255.0 192.0.2.1 111
+    ip route 198.51.100.0 255.255.255.0 192.0.2.1 121
     !
     exit
     end
     write memory
   pass_criteria:
     required_lines:
-      - "ip route 198.51.100.0 255.255.255.0 192.0.2.1 111"
+      - "ip route 198.51.100.0 255.255.255.0 192.0.2.1 121"
     config_saved: true
     isolation:
       allowed_top_level_prefixes:

@@ -1,17 +1,12 @@
-id: cisco-iosxe-static-routes-rfc1918-via-ip-interface
-vendor: cisco
-os_train: iosxe
-tier: bootcheck
-category: static-routing
 scoring: binary
-title: Static routes to RFC1918 networks via interface and next-hop IP
+title: Static routes to RFC1918 networks via interface next hop
+tags: [rfc1918]
 
 llm_input:
   prompt: |
     Provide the Cisco IOS-XE CLI configuration to add static routes via
-    interface GigabitEthernet0/1 with next-hop IP address 192.0.2.1,
-    specifying both the interface and the IP address as the next hop,
-    for each of the following networks:
+    interface GigabitEthernet0/1, specifying only the interface as the
+    next hop, for each of the following networks:
 
     - 10.0.0.0/8
     - 172.16.0.0/12
@@ -25,7 +20,6 @@ llm_input:
     TLDR output, full syntax commands only, no Markdown or code fences.
   context:
     interface: GigabitEthernet0/1
-    next_hop: 192.0.2.1
     networks:
       - 10.0.0.0/8
       - 172.16.0.0/12
@@ -35,18 +29,18 @@ grading:
   expected_config: |
     configure terminal
     !
-    ip route 10.0.0.0 255.0.0.0 GigabitEthernet0/1 192.0.2.1
-    ip route 172.16.0.0 255.240.0.0 GigabitEthernet0/1 192.0.2.1
-    ip route 192.168.0.0 255.255.0.0 GigabitEthernet0/1 192.0.2.1
+    ip route 10.0.0.0 255.0.0.0 GigabitEthernet0/1
+    ip route 172.16.0.0 255.240.0.0 GigabitEthernet0/1
+    ip route 192.168.0.0 255.255.0.0 GigabitEthernet0/1
     !
     exit
     end
     write memory
   pass_criteria:
     required_lines:
-      - "ip route 10.0.0.0 255.0.0.0 GigabitEthernet0/1 192.0.2.1"
-      - "ip route 172.16.0.0 255.240.0.0 GigabitEthernet0/1 192.0.2.1"
-      - "ip route 192.168.0.0 255.255.0.0 GigabitEthernet0/1 192.0.2.1"
+      - "ip route 10.0.0.0 255.0.0.0 GigabitEthernet0/1"
+      - "ip route 172.16.0.0 255.240.0.0 GigabitEthernet0/1"
+      - "ip route 192.168.0.0 255.255.0.0 GigabitEthernet0/1"
     config_saved: true
     isolation:
       allowed_top_level_prefixes:

@@ -1,10 +1,6 @@
-id: cisco-iosxe-static-route-ecmp
-vendor: cisco
-os_train: iosxe
-tier: bootcheck
-category: static-routing
 scoring: binary
 title: Equal-cost static routes for load balancing
+tags: [ecmp]
 
 llm_input:
   prompt: |

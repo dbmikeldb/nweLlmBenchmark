@@ -1,10 +1,6 @@
-id: cisco-iosxe-static-route-permanent
-vendor: cisco
-os_train: iosxe
-tier: bootcheck
-category: static-routing
 scoring: binary
-title: Permanent static route via next-hop IP
+title: Static route with a route tag
+tags: [route-tag]
 
 llm_input:
   prompt: |
@@ -12,8 +8,8 @@ llm_input:
     network 192.0.2.0/24 via next-hop IP address 198.51.100.1, specifying
     only the IP address as the next hop.
 
-    This route must remain in the routing table even if the next hop
-    becomes unreachable.
+    Tag this route with tag value 100 so it can be matched by a route-map
+    during redistribution.
 
     Enter configuration mode, define the configuration, exit to
     privileged EXEC, and save the configuration to memory.
@@ -22,19 +18,20 @@ llm_input:
   context:
     network: 192.0.2.0/24
     next_hop: 198.51.100.1
+    tag: 100
 
 grading:
   expected_config: |
     configure terminal
     !
-    ip route 192.0.2.0 255.255.255.0 198.51.100.1 permanent
+    ip route 192.0.2.0 255.255.255.0 198.51.100.1 tag 100
     !
     exit
     end
     write memory
   pass_criteria:
     required_lines:
-      - "ip route 192.0.2.0 255.255.255.0 198.51.100.1 permanent"
+      - "ip route 192.0.2.0 255.255.255.0 198.51.100.1 tag 100"
     config_saved: true
     isolation:
       allowed_top_level_prefixes:

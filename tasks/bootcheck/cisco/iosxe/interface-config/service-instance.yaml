@@ -1,10 +1,6 @@
-id: cisco-iosxe-interface-service-instance
-vendor: cisco
-os_train: iosxe
-tier: bootcheck
-category: interface-config
 scoring: binary
 title: Interface service instance for a bridge domain
+tags: [bridge-domain, service-instance]
 
 llm_input:
   prompt: |

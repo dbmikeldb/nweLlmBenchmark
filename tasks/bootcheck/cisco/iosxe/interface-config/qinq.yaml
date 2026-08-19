@@ -1,10 +1,6 @@
-id: cisco-iosxe-qinq-tunnel-interface
-vendor: cisco
-os_train: iosxe
-tier: bootcheck
-category: interface-config
 scoring: binary
 title: Q-in-Q tunnel interface
+tags: [qinq, dot1q-tunnel]
 
 llm_input:
   prompt: |
