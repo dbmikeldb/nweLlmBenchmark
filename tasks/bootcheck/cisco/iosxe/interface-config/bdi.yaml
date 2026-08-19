@@ -1,10 +1,6 @@
-id: cisco-iosxe-bdi-bridge-domain
-vendor: cisco
-os_train: iosxe
-tier: bootcheck
-category: interface-config
 scoring: binary
 title: Bridge domain interface
+tags: [bridge-domain]
 
 llm_input:
   prompt: |

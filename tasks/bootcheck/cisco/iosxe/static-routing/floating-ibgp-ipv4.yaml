@@ -1,10 +1,6 @@
-id: cisco-iosxe-static-route-floating-ibgp
-vendor: cisco
-os_train: iosxe
-tier: bootcheck
-category: static-routing
 scoring: binary
 title: Floating static route for an iBGP route
+tags: [bgp, ibgp, floating-static]
 
 llm_input:
   prompt: |

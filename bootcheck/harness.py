@@ -5,26 +5,19 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-import yaml
-
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from bootcheck.grading import grade
+from bootcheck.tasks_lib import load_task, results_dir_for
 from openrouter_client import OpenRouterClient
 from openrouter_client import list_free_models as list_free_openrouter
 from requesty_client import RequestyClient
 from requesty_client import list_free_models as list_free_requesty
 
-RESULTS_DIR = Path(__file__).resolve().parent.parent / "results" / "runs"
-
 PROVIDERS = {
     "requesty": (RequestyClient, list_free_requesty),
     "openrouter": (OpenRouterClient, list_free_openrouter),
 }
-
-
-def load_task(path: Path) -> dict:
-    return yaml.safe_load(path.read_text())
 
 
 async def acall_model(client: RequestyClient | OpenRouterClient, task: dict, model: str, provider: str) -> dict:
@@ -68,7 +61,7 @@ async def run(task_path: Path, models: list[str], provider: str = "requesty", co
     client_cls, _ = PROVIDERS[provider]
     client = client_cls()
 
-    task_results_dir = RESULTS_DIR / task["id"]
+    task_results_dir = results_dir_for(task)
     task_results_dir.mkdir(parents=True, exist_ok=True)
     run_file = task_results_dir / f"{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}.jsonl"
 

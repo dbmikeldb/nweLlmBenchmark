@@ -3,29 +3,24 @@ import json
 from datetime import datetime
 from pathlib import Path
 
-import yaml
-
-ROOT = Path(__file__).resolve().parent.parent
-TASKS_DIR = ROOT / "bootcheck" / "tasks"
-RUNS_DIR = ROOT / "results" / "runs"
+from bootcheck.tasks_lib import RESULTS_ROOT, load_all_tasks, metadata_from_run_path
 
 
 def load_tasks() -> dict[str, dict]:
-    tasks = {}
-    for path in sorted(TASKS_DIR.glob("*.yaml")):
-        t = yaml.safe_load(path.read_text())
-        tasks[t["id"]] = {
-            "vendor": t["vendor"],
-            "os_train": t["os_train"],
-            "category": t["category"],
-            "title": t["title"],
+    return {
+        task_id: {
+            "vendor": task["vendor"],
+            "os_train": task["os_train"],
+            "category": task["category"],
+            "title": task["title"],
         }
-    return tasks
+        for task_id, task in load_all_tasks().items()
+    }
 
 
 def load_runs(date: str | None = None) -> list[dict]:
     runs = []
-    for path in glob.glob(str(RUNS_DIR / "**" / "*.jsonl"), recursive=True):
+    for path in glob.glob(str(RESULTS_ROOT / "**" / "*.jsonl"), recursive=True):
         with open(path) as f:
             for line in f:
                 line = line.strip()
@@ -47,10 +42,11 @@ def list_available_dates() -> list[str]:
 def list_runs(date: str | None = None) -> list[dict]:
     tasks = load_tasks()
     runs = []
-    for path in glob.glob(str(RUNS_DIR / "**" / "*.jsonl"), recursive=True):
+    for path in glob.glob(str(RESULTS_ROOT / "**" / "*.jsonl"), recursive=True):
         p = Path(path)
-        task_id = p.parent.name
-        run_timestamp = p.stem
+        run_meta = metadata_from_run_path(p)
+        task_id = run_meta["id"]
+        run_timestamp = run_meta["run_timestamp"]
         run_date = datetime.strptime(run_timestamp, "%Y%m%dT%H%M%SZ").strftime("%Y-%m-%d")
         if date is not None and run_date != date:
             continue
@@ -67,8 +63,9 @@ def list_runs(date: str | None = None) -> list[dict]:
                     errors += 1
 
         task = tasks.get(task_id, {})
+        run_id = str(p.resolve().relative_to(RESULTS_ROOT.resolve()).with_suffix(""))
         runs.append({
-            "run_id": f"{task_id}/{run_timestamp}",
+            "run_id": run_id,
             "task_id": task_id,
             "title": task.get("title", task_id),
             "vendor": task.get("vendor"),
@@ -84,11 +81,11 @@ def list_runs(date: str | None = None) -> list[dict]:
 
 
 def load_run(run_id: str) -> dict | None:
-    path = (RUNS_DIR / f"{run_id}.jsonl").resolve()
-    if not path.is_relative_to(RUNS_DIR.resolve()) or not path.is_file():
+    path = (RESULTS_ROOT / f"{run_id}.jsonl").resolve()
+    if not path.is_relative_to(RESULTS_ROOT.resolve()) or not path.is_file():
         return None
 
-    task_id = run_id.split("/")[0]
+    task_id = metadata_from_run_path(path)["id"]
     task = load_tasks().get(task_id, {})
 
     records = []

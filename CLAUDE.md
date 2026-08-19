@@ -22,16 +22,29 @@ A series of tasks are defined within this repository, starting with the `bootche
 - Semantic branches: cut from `dev` for each unit of work, named with a Conventional Commits-style
   prefix, e.g. `feat/bootcheck-bgp-task`, `fix/free-model-fallback`, `chore/pyproject-migration`,
   `docs/results-schema`. Merge back into `dev`; `dev` is merged into `main` periodically once stable.
+- Working branches: a semantic branch cut from `dev` for a unit of work large enough to be split
+  into smaller pieces (e.g. `refactor/bootcheck-task-taxonomy`). Task branches may be cut from a
+  working branch to parallelize or checkpoint that work, always prefixed `task/` (e.g.
+  `task/bootcheck-tasks-lib`) to visually distinguish them from semantic/working branches. Task
+  branches merge back only into the working branch that spawned them — never directly into `dev`.
+  Once the working branch is complete and stable, it merges into `dev` as a single unit, same as
+  any other semantic branch.
 
 ## Bootcheck task authoring
 
 - Before writing a Cisco IOS-XE bootcheck task's `expected_config` / `pass_criteria`, look up a real
   Cisco IOS-XE configuration guide example for the feature under test (official Cisco documentation)
   to ground the answer key in verified syntax rather than assumption.
-- Every task must set a `category` field (alongside `vendor`/`os_train`/`tier`) so results can be
-  rolled up by function independent of vendor — this is what makes the benchmark's dashboard
-  cross-vendor. Current values: `interface-config`, `static-routing`. Add a new category only when a
-  task genuinely doesn't fit an existing one; don't create near-duplicate categories.
+- Task files live at `tasks/<tier>/<vendor>/<os_train>/<category>/<qualifier>.yaml`.
+  `vendor`/`os_train`/`tier`/`category`/`id` are derived from that path by
+  `bootcheck/tasks_lib.py` — do not set them in frontmatter; the loader rejects a task file that
+  does. `category` is what makes the benchmark's dashboard cross-vendor (results roll up by
+  function independent of vendor). Current values: `interface-config`, `static-routing`. Add a new
+  category only when a task genuinely doesn't fit an existing one; don't create near-duplicate
+  categories.
+- Use a `tags:` list in the task YAML for cross-cutting labels that aren't a directory level (e.g.
+  `tags: [bgp, ebgp]`) — this is how a query like "all BGP tasks" works across categories, since
+  `id` is a one-way derived string, not something safe to parse back apart.
 - All example IP addressing in task configs must use RFC 5737 documentation space
   (`192.0.2.0/24` aka NET-1, `198.51.100.0/24`, aka NET-2, `203.0.113.0/24`, aka NET-3) rather than
   RFC 1918 private ranges. Only use NET-2 and NET-3 in examples requiring multiple networks.

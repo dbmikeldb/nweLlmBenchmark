@@ -1,10 +1,6 @@
-id: cisco-iosxe-static-route-null0
-vendor: cisco
-os_train: iosxe
-tier: bootcheck
-category: static-routing
 scoring: binary
 title: Static route to Null0 for black-hole routing
+tags: [null-route]
 
 llm_input:
   prompt: |

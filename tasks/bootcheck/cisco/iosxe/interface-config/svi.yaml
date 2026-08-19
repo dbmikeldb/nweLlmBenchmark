@@ -1,10 +1,6 @@
-id: cisco-iosxe-svi-vlan
-vendor: cisco
-os_train: iosxe
-tier: bootcheck
-category: interface-config
 scoring: binary
 title: SVI for a VLAN
+tags: [vlan, svi]
 
 llm_input:
   prompt: |
