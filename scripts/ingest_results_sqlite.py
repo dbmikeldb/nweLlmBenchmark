@@ -1,12 +1,13 @@
 import json
 import sqlite3
+import sys
 from pathlib import Path
 
-import yaml
-
 REPO_ROOT = Path(__file__).resolve().parent.parent
-TASKS_DIR = REPO_ROOT / "bootcheck" / "tasks"
-RUNS_DIR = REPO_ROOT / "results" / "runs"
+sys.path.insert(0, str(REPO_ROOT))
+
+from bootcheck.tasks_lib import RESULTS_ROOT, load_all_tasks
+
 DB_PATH = REPO_ROOT / "results" / "bootcheck.db"
 
 SCHEMA = """
@@ -32,20 +33,19 @@ CREATE TABLE runs (
 
 
 def load_tasks() -> dict:
-    tasks = {}
-    for path in TASKS_DIR.glob("*.yaml"):
-        data = yaml.safe_load(path.read_text())
-        tasks[data["id"]] = {
-            "vendor": data.get("vendor"),
-            "os_train": data.get("os_train"),
-            "category": data.get("category"),
-            "title": data.get("title"),
+    return {
+        task_id: {
+            "vendor": task.get("vendor"),
+            "os_train": task.get("os_train"),
+            "category": task.get("category"),
+            "title": task.get("title"),
         }
-    return tasks
+        for task_id, task in load_all_tasks().items()
+    }
 
 
 def iterate_records():
-    for path in sorted(RUNS_DIR.glob("**/*.jsonl")):
+    for path in sorted(RESULTS_ROOT.glob("**/*.jsonl")):
         for line in path.read_text().splitlines():
             line = line.strip()
             if not line:
