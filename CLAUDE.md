@@ -22,6 +22,13 @@ A series of tasks are defined within this repository, starting with the `bootche
 - Semantic branches: cut from `dev` for each unit of work, named with a Conventional Commits-style
   prefix, e.g. `feat/bootcheck-bgp-task`, `fix/free-model-fallback`, `chore/pyproject-migration`,
   `docs/results-schema`. Merge back into `dev`; `dev` is merged into `main` periodically once stable.
+- Working branches: a semantic branch cut from `dev` for a unit of work large enough to be split
+  into smaller pieces (e.g. `refactor/bootcheck-task-taxonomy`). Task branches may be cut from a
+  working branch to parallelize or checkpoint that work, always prefixed `task/` (e.g.
+  `task/bootcheck-tasks-lib`) to visually distinguish them from semantic/working branches. Task
+  branches merge back only into the working branch that spawned them — never directly into `dev`.
+  Once the working branch is complete and stable, it merges into `dev` as a single unit, same as
+  any other semantic branch.
 
 ## Bootcheck task authoring
 
