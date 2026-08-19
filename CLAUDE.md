@@ -35,10 +35,16 @@ A series of tasks are defined within this repository, starting with the `bootche
 - Before writing a Cisco IOS-XE bootcheck task's `expected_config` / `pass_criteria`, look up a real
   Cisco IOS-XE configuration guide example for the feature under test (official Cisco documentation)
   to ground the answer key in verified syntax rather than assumption.
-- Every task must set a `category` field (alongside `vendor`/`os_train`/`tier`) so results can be
-  rolled up by function independent of vendor — this is what makes the benchmark's dashboard
-  cross-vendor. Current values: `interface-config`, `static-routing`. Add a new category only when a
-  task genuinely doesn't fit an existing one; don't create near-duplicate categories.
+- Task files live at `tasks/<tier>/<vendor>/<os_train>/<category>/<qualifier>.yaml`.
+  `vendor`/`os_train`/`tier`/`category`/`id` are derived from that path by
+  `bootcheck/tasks_lib.py` — do not set them in frontmatter; the loader rejects a task file that
+  does. `category` is what makes the benchmark's dashboard cross-vendor (results roll up by
+  function independent of vendor). Current values: `interface-config`, `static-routing`. Add a new
+  category only when a task genuinely doesn't fit an existing one; don't create near-duplicate
+  categories.
+- Use a `tags:` list in the task YAML for cross-cutting labels that aren't a directory level (e.g.
+  `tags: [bgp, ebgp]`) — this is how a query like "all BGP tasks" works across categories, since
+  `id` is a one-way derived string, not something safe to parse back apart.
 - All example IP addressing in task configs must use RFC 5737 documentation space
   (`192.0.2.0/24` aka NET-1, `198.51.100.0/24`, aka NET-2, `203.0.113.0/24`, aka NET-3) rather than
   RFC 1918 private ranges. Only use NET-2 and NET-3 in examples requiring multiple networks.
