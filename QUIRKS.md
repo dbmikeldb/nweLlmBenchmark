@@ -17,7 +17,7 @@ but the raw CLI command a model would type is accepted either way. The
 grader only tolerates the no-space `Vlan10` form, so a fully correct answer
 written as `interface vlan 10` fails isolation for no real reason.
 
-Observed on: `cisco-iosxe-svi-vlan` — in a 12-model free-tier sweep
+Observed on: `bootcheck-cisco-iosxe-interface-config-svi` — in a 12-model free-tier sweep
 (2026-08-16), 6 of 9 non-errored responses were otherwise fully correct
 (all required lines, description, and save present) and failed solely on
 this isolation mismatch. Only 1/9 models happened to write the no-space
